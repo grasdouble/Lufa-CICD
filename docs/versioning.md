@@ -97,7 +97,11 @@ because its changesets have already been consumed; all tests still run.
 ## GitHub setup
 
 Enable Actions to create pull requests in **Settings → Actions → General**.
-The release job requests `contents: write` and `pull-requests: write`.
+The release job requests `contents: write`, `pull-requests: write` and `packages: read`.
+Both test and release jobs use the built-in `GITHUB_TOKEN` for package access.
+In the GitHub Packages settings for `@grasdouble/lufa_config_agents`, grant
+`grasdouble/Lufa-CICD` **Read** access under **Manage Actions access**: pnpm's
+lockfile supply-chain checks fetch its metadata even during `--prod` installs.
 
 For automatic CI on version PRs, use the existing `LUFA_CI_SECRET_WRITE` Actions
 secret convention shared by the other Grasdouble repositories. Make this secret

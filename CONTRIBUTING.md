@@ -76,7 +76,11 @@ major aliases, and creates or updates the Changesets version PR.
 
 CI installs production tooling with `pnpm install --prod --frozen-lockfile
 --ignore-scripts`. Changesets CLI is a root tooling dependency; the private shared
-agent package is a development dependency used locally.
+agent package is a development dependency used locally. pnpm's lockfile supply-chain
+checks still fetch that package's metadata with `--prod`, so both installation jobs
+need `packages: read` for their built-in `GITHUB_TOKEN`. In the GitHub Packages
+settings for `@grasdouble/lufa_config_agents`, grant `grasdouble/Lufa-CICD` **Read**
+access under **Manage Actions access**.
 
 actionlint does not replace an integration test: for a
 functional change, call the component from a test project using the SHA of the

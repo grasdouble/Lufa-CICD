@@ -395,5 +395,7 @@ Use the workflow's built-in token to download Lufa packages so Dependabot-trigge
 
 - ✅ For workflows downloading private GitHub Packages, use `${{ secrets.GITHUB_TOKEN }}` and grant `packages: read` in the consuming job's effective permissions.
 - ✅ Grant the calling repository **Read** access under each package's **Manage Actions access** settings.
+- ✅ Keep `packages: read` on both catalogue installation jobs even with `pnpm install --prod`: pnpm's lockfile supply-chain checks also fetch private development dependency metadata.
+- ❌ Assume `--prod --frozen-lockfile --ignore-scripts` avoids private registry access because the private package is a development dependency.
 - ❌ Require a PAT solely for package downloads before checking whether `GITHUB_TOKEN` can provide the required access.
 - ✅ Evaluate credentials used for pushing commits or triggering other workflows separately; package download access does not establish that those operations can use the same token.
