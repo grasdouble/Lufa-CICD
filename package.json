@@ -1,0 +1,21 @@
+{
+  "name": "Lufa-CICD",
+  "private": true,
+  "description": "Independently versioned GitHub Actions for Grasdouble projects",
+  "scripts": {
+    "changeset": "changeset",
+    "sync:agents": "lufa-agents-sync",
+    "test": "node --test actions/*/__tests__/*.test.mjs scripts/__tests__/*.test.mjs",
+    "version:actions": "changeset version"
+  },
+  "packageManager": "pnpm@12.5.1",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@changesets/cli": "3.0.3"
+  },
+  "devDependencies": {
+    "@grasdouble/lufa_config_agents": "^1.1.4"
+  }
+}

@@ -1,0 +1,11 @@
+name: Lint GitHub workflows
+description: Validate the checked-out repository's GitHub Actions workflows with actionlint.
+author: grasdouble
+
+runs:
+  using: composite
+  steps:
+    - name: Run actionlint
+      uses: docker://rhysd/actionlint:1.7.12
+      with:
+        args: -color

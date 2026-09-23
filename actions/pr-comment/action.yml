@@ -1,0 +1,56 @@
+name: Comment on PR
+description: Create or update a marked comment authored by the configured bot.
+
+inputs:
+  github-token:
+    description: Token with permission to write pull request comments.
+    required: true
+  comment-marker:
+    description: Unique marker identifying this report.
+    required: true
+  comment-body:
+    description: Markdown content; the marker is prepended if missing.
+    required: true
+  issue-number:
+    description: Explicit PR or issue number; defaults to the current event's number.
+    required: false
+    default: ''
+  comment-author:
+    description: Login of the user or app that owns comments to update.
+    required: false
+    default: github-actions[bot]
+
+outputs:
+  comment-id:
+    description: ID of the created or updated comment.
+    value: ${{ steps.comment.outputs.comment-id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Find or create comment
+      id: comment
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      env:
+        COMMENT_ACTION_PATH: ${{ github.action_path }}
+        COMMENT_MARKER: ${{ inputs.comment-marker }}
+        COMMENT_BODY: ${{ inputs.comment-body }}
+        COMMENT_AUTHOR: ${{ inputs.comment-author }}
+        COMMENT_ISSUE_NUMBER: ${{ inputs.issue-number }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const { pathToFileURL } = require('node:url');
+          const { join } = require('node:path');
+          const moduleUrl = pathToFileURL(join(process.env.COMMENT_ACTION_PATH, 'comment.mjs'));
+          const { upsertComment } = await import(moduleUrl.href);
+          const id = await upsertComment({
+            github,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issueNumber: Number(process.env.COMMENT_ISSUE_NUMBER || context.issue.number),
+            marker: process.env.COMMENT_MARKER,
+            body: process.env.COMMENT_BODY,
+            author: process.env.COMMENT_AUTHOR,
+          });
+          core.setOutput('comment-id', id);

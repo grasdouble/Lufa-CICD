@@ -1,0 +1,95 @@
+name: Changesets release
+description: Set up pnpm, install and build packages, then create a version PR or publish with Changesets.
+
+inputs:
+  node-version-file:
+    description: Node.js version file in the calling repository.
+    default: .tool-versions
+  build-script:
+    description: Root pnpm script to build packages; empty disables the build.
+    default: all:build
+  version-command:
+    description: Command passed to Changesets to update versions and changelogs.
+    default: pnpm changeset version
+  publish-command:
+    description: Command passed to Changesets to publish packages.
+    default: pnpm changeset publish
+  registry-url:
+    description: Package registry URL.
+    default: https://npm.pkg.github.com
+  scope:
+    description: Package scope associated with the registry.
+    default: '@grasdouble'
+  pr-title:
+    description: Title of the release pull request.
+    default: 'Release: New Version Updates'
+  commit-message:
+    description: Message for the version update commit.
+    default: Release new versions
+  create-github-releases:
+    description: Whether to create GitHub releases after publication (true or false).
+    default: 'true'
+  release-token:
+    description: Credential used by Changesets for PRs, commits, tags and releases.
+    required: true
+  registry-token:
+    description: Credential used to install and publish packages.
+    required: true
+
+outputs:
+  published:
+    description: Whether packages were published (string true or false).
+    value: ${{ steps.changesets.outputs.published }}
+  published-packages:
+    description: JSON array of published package names and versions.
+    value: ${{ steps.changesets.outputs.published-packages }}
+  has-changesets:
+    description: Whether pending changesets exist (string true or false).
+    value: ${{ steps.changesets.outputs.has-changesets }}
+  pr-number:
+    description: Number of the release PR created or updated.
+    value: ${{ steps.changesets.outputs.pr-number }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate release options
+      shell: bash
+      env:
+        CREATE_RELEASES: ${{ inputs.create-github-releases }}
+      run: |
+        case "$CREATE_RELEASES" in
+          true|false) ;;
+          *) echo '::error::create-github-releases must be true or false'; exit 1 ;;
+        esac
+
+    - name: Set up Node.js and pnpm
+      uses: grasdouble/Lufa-CICD/actions/setup-node-pnpm@setup-node-pnpm-v1
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+        registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
+        github-token: ${{ inputs.registry-token }}
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Build packages
+      if: inputs.build-script != ''
+      shell: bash
+      env:
+        BUILD_SCRIPT: ${{ inputs.build-script }}
+      run: pnpm run "$BUILD_SCRIPT"
+
+    - name: Version or publish packages
+      id: changesets
+      # Action v2 is compatible with CLI v3; review future majors together.
+      uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+      with:
+        github-token: ${{ inputs.release-token }}
+        version-script: ${{ inputs.version-command }}
+        publish-script: ${{ inputs.publish-command }}
+        pr-title: ${{ inputs.pr-title }}
+        commit-message: ${{ inputs.commit-message }}
+        create-github-releases: ${{ inputs.create-github-releases }}

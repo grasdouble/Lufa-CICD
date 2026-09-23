@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /actions/lint-workflows
+      - /actions/setup-node-pnpm
+      - /actions/pr-comment
+      - /actions/ftp-deploy
+      - /actions/changesets-release
+    ignore:
+      - dependency-name: changesets/action
+        update-types:
+          - version-update:semver-major
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - '*'

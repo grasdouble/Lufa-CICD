@@ -1,0 +1,49 @@
+name: FTP Deploy
+description: Deploy a prepared directory to an FTP or FTPS server.
+
+inputs:
+  server:
+    description: FTP server address.
+    required: true
+  port:
+    description: FTP server port.
+    required: true
+  protocol:
+    description: FTP protocol (ftp, ftps or ftps-legacy).
+    required: true
+  username:
+    description: FTP username.
+    required: true
+  password:
+    description: FTP password.
+    required: true
+  local-dir:
+    description: Local directory to deploy, ending with a slash.
+    required: true
+  server-dir:
+    description: Remote server directory, ending with a slash.
+    required: false
+    default: ./
+  exclude:
+    description: Files and directories to exclude (one glob per line).
+    required: false
+    default: |
+      **/.git*
+      **/.git*/**
+      **/node_modules/**
+      **/cgi-bin/**
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy to FTP
+      uses: SamKirkland/FTP-Deploy-Action@fe9c9aad1198372d80a77c8dace63cbe48b69eac # v4.3.6
+      with:
+        server: ${{ inputs.server }}
+        port: ${{ inputs.port }}
+        protocol: ${{ inputs.protocol }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+        local-dir: ${{ inputs.local-dir }}
+        server-dir: ${{ inputs.server-dir }}
+        exclude: ${{ inputs.exclude }}
