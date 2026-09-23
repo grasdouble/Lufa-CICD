@@ -129,10 +129,10 @@ jobs:
             const { publishActions } = await import(pathToFileURL(resolve('scripts/publish-actions.mjs')).href);
             const { syncMajorTags } = await import(pathToFileURL(resolve('scripts/sync-major-tags.mjs')).href);
             const actions = await readActionPackages(process.cwd());
-            const published = await publishActions({ github, ...context.repo, sha: context.sha, actions });
+            const { published, confirmedTags } = await publishActions({ github, ...context.repo, sha: context.sha, actions });
             for (const tag of published) core.info(`Published ${tag}`);
             const components = Object.fromEntries(actions.map(({ path, component }) => [path, { component }]));
-            const updates = await syncMajorTags({ github, ...context.repo, components });
+            const updates = await syncMajorTags({ github, ...context.repo, components, confirmedTags });
             for (const { alias, sha } of updates) core.info(`${alias} -> ${sha}`);
 
       - name: Create or update the Changesets version PR

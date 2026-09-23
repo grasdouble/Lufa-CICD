@@ -369,6 +369,12 @@ when changing how actions or workflows are organized.
 - Catalogue publication creates only GitHub releases and component-prefixed tags;
   never run `changeset publish` for this catalogue. The consumer-facing
   `changesets-release` action still supports publishing consumer npm packages.
+- When publishing and reconciling major aliases in one CI run, pass every release
+  confirmed by the publisher to alias reconciliation. GitHub's release listing
+  can temporarily omit a release created seconds earlier.
+  - ✅ Reconcile with the confirmed exact tags alongside the paginated releases list.
+  - ❌ Rely only on an immediate `listReleases` call after `createRelease`;
+    a successful run can silently leave an action without its major alias.
 - CI automates release PRs, exact tags and major aliases after validation. Agents
   must not invoke publication scripts against GitHub or perform Git mutations.
 - Reuse the ecosystem's `LUFA_CI_SECRET_WRITE` name for catalogue release writes

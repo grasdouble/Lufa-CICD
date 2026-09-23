@@ -53,7 +53,38 @@ function client({ releases = [], refs = {}, versions = {}, tags = {} } = {}) {
 
 const release = (tag_name, extra = {}) => ({ tag_name, draft: false, prerelease: false, ...extra });
 const commit = (sha) => ({ type: 'commit', sha });
-const run = (github) => syncMajorTags({ github, owner: 'example', repo: 'catalogue', components });
+const run = (github, confirmedTags = []) => syncMajorTags({ github, owner: 'example', repo: 'catalogue', components, confirmedTags });
+
+test('creates an alias for a confirmed release before it appears in the releases listing', async () => {
+  const { github, writes } = client({
+    refs: { 'tags/setup-node-pnpm-v1.0.0': commit('setup-sha') },
+    versions: { 'actions/setup-node-pnpm/package.json@setup-sha': '1.0.0' },
+  });
+  await run(github, ['setup-node-pnpm-v1.0.0']);
+  assert.deepEqual(writes, [['create', {
+    owner: 'example', repo: 'catalogue', ref: 'refs/tags/setup-node-pnpm-v1', sha: 'setup-sha',
+  }]]);
+});
+
+test('a confirmed older version cannot displace a newer version visible in the releases listing', async () => {
+  const { github, writes } = client({
+    releases: [release('pr-comment-v1.2.0')],
+    refs: { 'tags/pr-comment-v1.2.0': commit('new'), 'tags/pr-comment-v1.0.0': commit('old') },
+    versions: { 'actions/pr-comment/package.json@new': '1.2.0' },
+  });
+  await run(github, ['pr-comment-v1.0.0']);
+  assert.deepEqual(writes, [['create', {
+    owner: 'example', repo: 'catalogue', ref: 'refs/tags/pr-comment-v1', sha: 'new',
+  }]]);
+});
+
+test('confirmed drafts and prereleases cannot create a stable major alias', async () => {
+  const { github, writes } = client({
+    refs: { 'tags/pr-comment-v2.0.0-rc.1': commit('preview') },
+  });
+  await run(github, ['pr-comment-v2.0.0-rc.1']);
+  assert.deepEqual(writes, []);
+});
 
 test('publishes separate aliases using exact tag commits, including annotated tags', async () => {
   const { github, writes } = client({

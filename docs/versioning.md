@@ -142,6 +142,11 @@ stable version for each configured action and major. It:
 - reconciles existing releases on every successful release run, even when no new
   action version was published.
 
+The publisher also passes its confirmed releases directly to alias reconciliation.
+GitHub's releases listing can lag behind a newly created release; the direct
+confirmation ensures its major alias is created in the same run. A later run
+reconciles any missing alias from the complete releases listing.
+
 If an API or permission error interrupts alias updates, fix the cause and rerun
 **Catalogue CI** on `main`. Already-correct aliases are left in place. This also
 repairs missing aliases without creating another release. The script's tests use

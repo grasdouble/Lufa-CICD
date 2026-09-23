@@ -15,6 +15,7 @@ function changelogEntry(changelog, version) {
 export async function publishActions({ github, owner, repo, sha, actions }) {
   if (!sha) throw new Error('A validated commit SHA is required.');
   const planned = [];
+  const confirmedTags = [];
   for (const action of actions) {
     validateAction(action);
     if (action.version === '0.0.0') continue;
@@ -32,6 +33,7 @@ export async function publishActions({ github, owner, repo, sha, actions }) {
       if (existingRelease.draft || existingRelease.prerelease !== prerelease) {
         throw new Error(`Unexpected draft or prerelease state for ${tag}`);
       }
+      confirmedTags.push(tag);
       continue;
     }
     const changelog = await readFileAtRef({ github, owner, repo, path: `${action.path}/CHANGELOG.md`, ref: target });
@@ -45,6 +47,7 @@ export async function publishActions({ github, owner, repo, sha, actions }) {
       owner, repo, tag_name: tag, name: tag, target_commitish: target, body,
       draft: false, prerelease, make_latest: 'false',
     });
+    confirmedTags.push(tag);
   }
-  return planned.map(({ tag }) => tag);
+  return { published: planned.map(({ tag }) => tag), confirmedTags };
 }

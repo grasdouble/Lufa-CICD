@@ -70,6 +70,17 @@ test('reruns after main advances do not move exact tags or duplicate releases', 
   assert.equal(writes.length, 2);
 });
 
+test('returns all confirmed exact release tags even when every release already exists', async () => {
+  const { github } = client({
+    refs: { 'tags/pr-comment-v1.2.0': { type: 'commit', sha: 'original' } },
+    releases: { 'pr-comment-v1.2.0': { draft: false, prerelease: false } },
+    files: filesAt('original'),
+  });
+  const result = await run(github, [action], 'newer-main');
+  assert.deepEqual(result.confirmedTags, ['pr-comment-v1.2.0']);
+  assert.deepEqual(result.published, []);
+});
+
 test('recovers from a release API failure using the existing exact tag, not the new HEAD', async () => {
   const { github, writes } = client({
     refs: { 'tags/pr-comment-v1.2.0': { type: 'tag', sha: 'annotated' } },

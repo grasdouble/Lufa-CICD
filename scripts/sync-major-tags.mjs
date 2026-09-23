@@ -11,7 +11,7 @@ function compareVersions(left, right) {
   return 0;
 }
 
-export async function syncMajorTags({ github, owner, repo, components }) {
+export async function syncMajorTags({ github, owner, repo, components, confirmedTags = [] }) {
   const paths = new Map();
   for (const [path, { component }] of Object.entries(components)) {
     if (!/^actions\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(component)) {
@@ -23,7 +23,7 @@ export async function syncMajorTags({ github, owner, repo, components }) {
 
   const releases = await github.paginate(github.rest.repos.listReleases, { owner, repo, per_page: 100 });
   const latest = new Map();
-  for (const release of releases) {
+  for (const release of [...releases, ...confirmedTags.map((tag_name) => ({ tag_name, draft: false, prerelease: false }))]) {
     if (release.draft || release.prerelease) continue;
     for (const [component, path] of paths) {
       const prefix = `${component}-v`;
