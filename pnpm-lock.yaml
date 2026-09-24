@@ -186,6 +186,8 @@ importers:
 
   actions/pr-comment: {}
 
+  actions/check-quality: {}
+
   actions/setup-node-pnpm: {}
 
 packages:

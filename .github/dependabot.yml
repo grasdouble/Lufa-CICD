@@ -8,6 +8,7 @@ updates:
       - /actions/pr-comment
       - /actions/check-changesets
       - /actions/dependabot-changeset
+      - /actions/check-quality
       - /actions/ftp-deploy
       - /actions/changesets-release
     ignore:

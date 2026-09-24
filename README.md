@@ -13,6 +13,7 @@ triggers and calls the catalogue.
 | [`pr-comment`](actions/pr-comment/README.md) | `pr-comment-v1` | Create or update an author-scoped, marked PR comment |
 | [`check-changesets`](actions/check-changesets/README.md) | `check-changesets-v1` | Check changed workspace packages for Changeset coverage |
 | [`dependabot-changeset`](actions/dependabot-changeset/README.md) | `dependabot-changeset-v1` | Generate and push one stable Changeset per Dependabot PR |
+| [`check-quality`](actions/check-quality/README.md) | `check-quality-v1` | Run caller-selected project quality commands |
 | [`ftp-deploy`](actions/ftp-deploy/README.md) | `ftp-deploy-v1` | Deploy a prepared directory over FTP or FTPS |
 | [`changesets-release`](actions/changesets-release/README.md) | `changesets-release-v1` | Build and release pnpm packages with Changesets |
 
@@ -92,6 +93,7 @@ actions/
   pr-comment/                # Marked PR comments and behavior tests
   check-changesets/          # Changeset coverage validation for workspace packages
   dependabot-changeset/      # Idempotent Dependabot Changesets and branch pushes
+  check-quality/             # Reusable project quality commands
   ftp-deploy/                # FTP/FTPS deployment
   changesets-release/        # pnpm package release steps
 docs/
