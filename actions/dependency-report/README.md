@@ -15,7 +15,8 @@ change repository files, create commits, or open pull requests.
 The artifact is named `outdated-dependencies-report` and is retained for 30
 days. If `pnpm outdated -r` reports outdated packages with exit code 1, its
 output is still included. Other command failures fail the action rather than
-publishing an empty report.
+publishing an empty report. The output is fenced as text so pnpm's box-drawing
+table preserves its column alignment in the job summary.
 
 ## Requirements
 

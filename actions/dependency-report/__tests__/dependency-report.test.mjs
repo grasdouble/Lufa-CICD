@@ -31,7 +31,7 @@ test('formats a report and publishes the same content to the summary and artifac
       summaryFile,
       runCommand: () => 'package 1.0.0 1.1.0',
     });
-    const expected = '# Outdated Dependencies Report\n\npackage 1.0.0 1.1.0\n';
+    const expected = '# Outdated Dependencies Report\n\n```text\npackage 1.0.0 1.1.0\n```\n';
 
     assert.equal(report.content, expected);
     assert.equal(readFileSync(report.reportPath, 'utf8'), expected);

@@ -23,7 +23,15 @@ export function runPnpmOutdated(cwd, spawn = spawnSync) {
 
 export function formatReport(stdout) {
   const report = stdout.replace(ansiEscape, '').trim();
-  return `# Outdated Dependencies Report\n\n${report || 'No outdated dependencies.'}\n`;
+  if (!report) return '# Outdated Dependencies Report\n\nNo outdated dependencies.\n';
+  return [
+    '# Outdated Dependencies Report',
+    '',
+    '```text',
+    report,
+    '```',
+    '',
+  ].join('\n');
 }
 
 export function writeDependencyReport({ cwd, runnerTemp, summaryFile, runCommand = runPnpmOutdated }) {
