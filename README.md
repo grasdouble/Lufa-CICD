@@ -12,6 +12,7 @@ triggers and calls the catalogue.
 | [`setup-node-pnpm`](actions/setup-node-pnpm/README.md) | `setup-node-pnpm-v1` | Set up Node.js, pnpm, caching and registry authentication |
 | [`pr-comment`](actions/pr-comment/README.md) | `pr-comment-v1` | Create or update an author-scoped, marked PR comment |
 | [`check-changesets`](actions/check-changesets/README.md) | `check-changesets-v1` | Check changed workspace packages for Changeset coverage |
+| [`dependabot-changeset`](actions/dependabot-changeset/README.md) | `dependabot-changeset-v1` | Generate and push one stable Changeset per Dependabot PR |
 | [`ftp-deploy`](actions/ftp-deploy/README.md) | `ftp-deploy-v1` | Deploy a prepared directory over FTP or FTPS |
 | [`changesets-release`](actions/changesets-release/README.md) | `changesets-release-v1` | Build and release pnpm packages with Changesets |
 
@@ -90,6 +91,7 @@ actions/
   setup-node-pnpm/           # Node.js/pnpm and registry setup
   pr-comment/                # Marked PR comments and behavior tests
   check-changesets/          # Changeset coverage validation for workspace packages
+  dependabot-changeset/      # Idempotent Dependabot Changesets and branch pushes
   ftp-deploy/                # FTP/FTPS deployment
   changesets-release/        # pnpm package release steps
 docs/

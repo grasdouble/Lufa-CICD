@@ -1,0 +1,48 @@
+name: Create Dependabot Changeset
+description: Generate, commit, and push one idempotent Changeset for a Dependabot pull request.
+
+inputs:
+  base-sha:
+    description: Base commit SHA used to find changed package manifests.
+    required: true
+  head-sha:
+    description: Head commit SHA used to find changed package manifests.
+    required: true
+  head-branch:
+    description: Dependabot pull request branch to push the Changeset commit to.
+    required: true
+  pull-request-number:
+    description: Pull request number used to create a stable, unique Changeset filename.
+    required: true
+  github-token:
+    description: Token with permission to push commits to the pull request branch.
+    required: true
+
+outputs:
+  affected-packages:
+    description: JSON array of workspace package names with changed package manifests.
+    value: ${{ steps.changeset.outputs.affected-packages }}
+  changeset-file:
+    description: Stable Changeset path for this pull request, or empty when none was needed.
+    value: ${{ steps.changeset.outputs.changeset-file }}
+  changed:
+    description: Whether the action committed and pushed a Changeset update.
+    value: ${{ steps.changeset.outputs.changed }}
+  commit-sha:
+    description: Commit SHA after the action completes.
+    value: ${{ steps.changeset.outputs.commit-sha }}
+
+runs:
+  using: composite
+  steps:
+    - name: Generate and push the Dependabot Changeset
+      id: changeset
+      shell: bash
+      env:
+        BASE_SHA: ${{ inputs.base-sha }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        HEAD_BRANCH: ${{ inputs.head-branch }}
+        PULL_REQUEST_NUMBER: ${{ inputs.pull-request-number }}
+        DEPENDABOT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+      run: node "$GITHUB_ACTION_PATH/dependabot-changeset.mjs"

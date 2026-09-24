@@ -178,6 +178,8 @@ importers:
 
   actions/check-changesets: {}
 
+  actions/dependabot-changeset: {}
+
   actions/ftp-deploy: {}
 
   actions/lint-workflows: {}
