@@ -1,0 +1,38 @@
+name: Synchronize shared agent rules
+description: Check or synchronize AGENTS.md from the public Lufa-Core rules source.
+
+inputs:
+  mode:
+    description: '`check` fails when AGENTS.md is stale; `sync` commits and pushes to an existing branch.'
+    required: false
+    default: check
+  head-branch:
+    description: Existing branch to push the AGENTS.md update to in sync mode.
+    required: false
+    default: ''
+  github-token:
+    description: Token with contents write access to the existing branch in sync mode.
+    required: false
+    default: ''
+
+outputs:
+  changed:
+    description: Whether AGENTS.md differed from the current shared rules.
+    value: ${{ steps.sync.outputs.changed }}
+  commit-sha:
+    description: Commit SHA after synchronization, or current HEAD in check mode.
+    value: ${{ steps.sync.outputs.commit-sha }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check or synchronize AGENTS.md
+      id: sync
+      shell: bash
+      env:
+        SYNC_MODE: ${{ inputs.mode }}
+        HEAD_BRANCH: ${{ inputs.head-branch }}
+        SYNC_GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: node "$GITHUB_ACTION_PATH/sync-agents.mjs"

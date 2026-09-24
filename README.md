@@ -13,9 +13,11 @@ triggers and calls the catalogue.
 | [`pr-comment`](actions/pr-comment/README.md) | `pr-comment-v1` | Create or update an author-scoped, marked PR comment |
 | [`check-changesets`](actions/check-changesets/README.md) | `check-changesets-v1` | Check changed workspace packages for Changeset coverage |
 | [`dependabot-changeset`](actions/dependabot-changeset/README.md) | `dependabot-changeset-v1` | Generate and push one stable Changeset per Dependabot PR |
-| [`check-quality`](actions/check-quality/README.md) | `check-quality-v1` | Run caller-selected project quality commands |
+| [`check-quality`](actions/check-quality/README.md) | `check-quality-v2` | Run caller-selected project quality commands |
+| [`dependency-report`](actions/dependency-report/README.md) | `dependency-report-v1` | Generate a dependency report in the run summary and artifact |
+| [`sync-agents`](actions/sync-agents/README.md) | `sync-agents-v1` | Check or synchronize shared AGENTS.md rules |
 | [`ftp-deploy`](actions/ftp-deploy/README.md) | `ftp-deploy-v1` | Deploy a prepared directory over FTP or FTPS |
-| [`changesets-release`](actions/changesets-release/README.md) | `changesets-release-v1` | Build and release pnpm packages with Changesets |
+| [`changesets-release`](actions/changesets-release/README.md) | `changesets-release-v2` | Build and release pnpm packages with Changesets |
 
 All components are **composite actions**, called from `jobs.<job>.steps`.
 The calling project controls its triggers, checkout, runner, matrix, permissions,
@@ -94,6 +96,8 @@ actions/
   check-changesets/          # Changeset coverage validation for workspace packages
   dependabot-changeset/      # Idempotent Dependabot Changesets and branch pushes
   check-quality/             # Reusable project quality commands
+  dependency-report/          # Weekly dependency report and artifact
+  sync-agents/                # Shared AGENTS.md check and synchronization
   ftp-deploy/                # FTP/FTPS deployment
   changesets-release/        # pnpm package release steps
 docs/

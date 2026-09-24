@@ -306,6 +306,13 @@ rules belong in the source package, not in this repository's generated copy.
 - ✅ `uses: grasdouble/Lufa-CICD/actions/lint-workflows@lint-workflows-v1` after publication.
 - ❌ `uses: ./actions/lint-workflows` to access this catalogue from a consumer.
 
+## Caller-owned dependency installation and builds
+
+Reusable actions may prepare their own runtime, but installation of caller dependencies and builds of caller packages belong in the calling workflow so it controls credentials, permissions, and build order.
+
+- ✅ The workflow installs dependencies and builds required packages before calling actions that run quality checks or release operations.
+- ❌ A reusable action installs caller dependencies or builds caller packages, including by accepting command inputs that it executes.
+
 ## Public contracts and workflow permissions
 
 - Document input types, defaults, outputs, required secrets and supported runners.
@@ -395,13 +402,10 @@ workflow and action labels, and PR titles, descriptions and comments in English.
 
 ---
 
-## CI package downloads — Prefer GITHUB_TOKEN over a PAT
+## Agent rules — Fetch the private sync tool on demand
 
-Use the workflow's built-in token to download Lufa packages so Dependabot-triggered CI does not depend on unavailable Actions secrets.
+Keep `@grasdouble/lufa_config_agents` out of the root dependency graph; the explicit `pnpm sync:agents` command invokes it with `pnpm dlx` when needed.
 
-- ✅ For workflows downloading private GitHub Packages, use `${{ secrets.GITHUB_TOKEN }}` and grant `packages: read` in the consuming job's effective permissions.
-- ✅ Grant the calling repository **Read** access under each package's **Manage Actions access** settings.
-- ✅ Keep `packages: read` on both catalogue installation jobs even with `pnpm install --prod`: pnpm's lockfile supply-chain checks also fetch private development dependency metadata.
-- ❌ Assume `--prod --frozen-lockfile --ignore-scripts` avoids private registry access because the private package is a development dependency.
-- ❌ Require a PAT solely for package downloads before checking whether `GITHUB_TOKEN` can provide the required access.
-- ✅ Evaluate credentials used for pushing commits or triggering other workflows separately; package download access does not establish that those operations can use the same token.
+- ✅ `"sync:agents": "pnpm dlx @grasdouble/lufa_config_agents"` for on-demand synchronization.
+- ✅ If a workflow invokes that command, grant `packages: read` and repository access under **Manage Actions access**.
+- ❌ Add the private package as a root dependency just to provide the sync command; every frozen CI install would then require package access.

@@ -9,6 +9,8 @@ updates:
       - /actions/check-changesets
       - /actions/dependabot-changeset
       - /actions/check-quality
+      - /actions/dependency-report
+      - /actions/sync-agents
       - /actions/ftp-deploy
       - /actions/changesets-release
     ignore:

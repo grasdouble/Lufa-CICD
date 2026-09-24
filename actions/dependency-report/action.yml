@@ -1,0 +1,27 @@
+name: Generate Dependency Report
+description: Generate a weekly outdated-dependency report, add it to the job summary, and upload it as an artifact.
+
+outputs:
+  report-path:
+    description: Path to the generated Markdown report on the runner.
+    value: ${{ steps.report.outputs.report-path }}
+  artifact-url:
+    description: Authenticated URL for the uploaded report artifact.
+    value: ${{ steps.upload.outputs.artifact-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Generate dependency report
+      id: report
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/dependency-report.mjs"
+
+    - name: Upload dependency report
+      id: upload
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      with:
+        name: outdated-dependencies-report
+        path: ${{ steps.report.outputs.report-path }}
+        if-no-files-found: error
+        retention-days: 30

@@ -1,25 +1,13 @@
 name: Changesets release
-description: Set up pnpm, install and build packages, then create a version PR or publish with Changesets.
+description: Build packages, then create a version PR or publish with Changesets using the caller's preinstalled environment.
 
 inputs:
-  node-version-file:
-    description: Node.js version file in the calling repository.
-    default: .tool-versions
-  build-script:
-    description: Root pnpm script to build packages; empty disables the build.
-    default: all:build
   version-command:
     description: Command passed to Changesets to update versions and changelogs.
     default: pnpm changeset version
   publish-command:
     description: Command passed to Changesets to publish packages.
     default: pnpm changeset publish
-  registry-url:
-    description: Package registry URL.
-    default: https://npm.pkg.github.com
-  scope:
-    description: Package scope associated with the registry.
-    default: '@grasdouble'
   pr-title:
     description: Title of the release pull request.
     default: 'Release: New Version Updates'
@@ -31,9 +19,6 @@ inputs:
     default: 'true'
   release-token:
     description: Credential used by Changesets for PRs, commits, tags and releases.
-    required: true
-  registry-token:
-    description: Credential used to install and publish packages.
     required: true
 
 outputs:
@@ -62,25 +47,6 @@ runs:
           true|false) ;;
           *) echo '::error::create-github-releases must be true or false'; exit 1 ;;
         esac
-
-    - name: Set up Node.js and pnpm
-      uses: grasdouble/Lufa-CICD/actions/setup-node-pnpm@setup-node-pnpm-v1
-      with:
-        node-version-file: ${{ inputs.node-version-file }}
-        registry-url: ${{ inputs.registry-url }}
-        scope: ${{ inputs.scope }}
-        github-token: ${{ inputs.registry-token }}
-
-    - name: Install dependencies
-      shell: bash
-      run: pnpm install --frozen-lockfile
-
-    - name: Build packages
-      if: inputs.build-script != ''
-      shell: bash
-      env:
-        BUILD_SCRIPT: ${{ inputs.build-script }}
-      run: pnpm run "$BUILD_SCRIPT"
 
     - name: Version or publish packages
       id: changesets

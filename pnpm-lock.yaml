@@ -169,16 +169,16 @@ importers:
       '@changesets/cli':
         specifier: 3.0.3
         version: 3.0.3
-    devDependencies:
-      '@grasdouble/lufa_config_agents':
-        specifier: ^1.1.4
-        version: 1.1.4
 
   actions/changesets-release: {}
 
   actions/check-changesets: {}
 
+  actions/check-quality: {}
+
   actions/dependabot-changeset: {}
+
+  actions/dependency-report: {}
 
   actions/ftp-deploy: {}
 
@@ -186,9 +186,9 @@ importers:
 
   actions/pr-comment: {}
 
-  actions/check-quality: {}
-
   actions/setup-node-pnpm: {}
+
+  actions/sync-agents: {}
 
 packages:
 
@@ -260,10 +260,6 @@ packages:
   '@clack/prompts@1.8.1':
     resolution: {integrity: sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ==}
     engines: {node: '>= 20.12.0'}
-
-  '@grasdouble/lufa_config_agents@1.1.4':
-    resolution: {integrity: sha512-PxR5Zr0gmAkNUJ5Cu9P9mTqvVz7lXiBLVCjYyKYTUoOEBhACz7uq+6XrTU1QNAumknv4rVY/Hv6nDdh1Ns+wCg==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_agents/1.1.4/45092f344d3d29958ed599f185824c32abf61d6f}
-    hasBin: true
 
   '@manypkg/find-root@3.1.0':
     resolution: {integrity: sha512-BcSqCyKhBVZ5YkSzOiheMCV41kqAFptW6xGqYSTjkVTl9XQpr+pqHhwgGCOHQtjDCv7Is6EFyA14Sm5GVbVABA==}
@@ -471,8 +467,6 @@ snapshots:
       fast-string-width: 3.0.2
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
-
-  '@grasdouble/lufa_config_agents@1.1.4': {}
 
   '@manypkg/find-root@3.1.0':
     dependencies:

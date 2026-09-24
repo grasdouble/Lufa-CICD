@@ -1,15 +1,11 @@
 name: Check quality
-description: Run caller-selected install, build, lint, typecheck, and formatting commands.
+description: Run caller-selected lint, typecheck, and formatting commands.
 
 inputs:
-  install-command:
-    description: Optional shell command to install dependencies; leave empty to skip installation.
+  check-agent-rules:
+    description: Check the caller's generated AGENTS.md block against the shared Core rules.
     required: false
-    default: ''
-  build-command:
-    description: Optional shell command to build the project or its packages; leave empty to skip the build.
-    required: false
-    default: ''
+    default: 'false'
   lint-command:
     description: Optional shell command to lint the project or its packages; leave empty to skip linting.
     required: false
@@ -22,49 +18,31 @@ inputs:
     description: Optional shell command to check formatting; leave empty to skip formatting.
     required: false
     default: ''
-outputs:
-  install-succeeded:
-    description: Whether dependency installation succeeded or its command was omitted.
-    value: ${{ steps.install.outcome == 'success' || steps.install.outcome == 'skipped' }}
-  build-succeeded:
-    description: Whether the build succeeded or its command was omitted.
-    value: ${{ (steps.install.outcome == 'success' || steps.install.outcome == 'skipped') && (steps.build.outcome == 'success' || (steps.build.outcome == 'skipped' && inputs.build-command == '')) }}
-
 runs:
   using: composite
   steps:
-    - name: Install dependencies
-      id: install
-      if: inputs.install-command != ''
-      shell: bash
-      env:
-        QUALITY_COMMAND: ${{ inputs.install-command }}
-      run: bash -e -o pipefail -c "$QUALITY_COMMAND"
-
-    - name: Build packages
-      id: build
-      if: inputs.build-command != '' && steps.install.outcome != 'failure'
-      shell: bash
-      env:
-        QUALITY_COMMAND: ${{ inputs.build-command }}
-      run: bash -e -o pipefail -c "$QUALITY_COMMAND"
+    - name: Check shared agent rules
+      if: inputs.check-agent-rules == 'true'
+      uses: grasdouble/Lufa-CICD/actions/sync-agents@sync-agents-v1
+      with:
+        mode: check
 
     - name: Lint packages
-      if: always() && inputs.lint-command != '' && steps.install.outcome != 'failure'
+      if: always() && inputs.lint-command != ''
       shell: bash
       env:
         QUALITY_COMMAND: ${{ inputs.lint-command }}
       run: bash -e -o pipefail -c "$QUALITY_COMMAND"
 
     - name: Typecheck packages
-      if: always() && inputs.typecheck-command != '' && steps.install.outcome != 'failure' && steps.build.outcome != 'failure'
+      if: always() && inputs.typecheck-command != ''
       shell: bash
       env:
         QUALITY_COMMAND: ${{ inputs.typecheck-command }}
       run: bash -e -o pipefail -c "$QUALITY_COMMAND"
 
     - name: Check formatting
-      if: always() && inputs.format-command != '' && steps.install.outcome != 'failure'
+      if: always() && inputs.format-command != ''
       shell: bash
       env:
         QUALITY_COMMAND: ${{ inputs.format-command }}

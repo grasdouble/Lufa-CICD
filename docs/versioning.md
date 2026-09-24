@@ -97,11 +97,14 @@ because its changesets have already been consumed; all tests still run.
 ## GitHub setup
 
 Enable Actions to create pull requests in **Settings → Actions → General**.
-The release job requests `contents: write`, `pull-requests: write` and `packages: read`.
-Both test and release jobs use the built-in `GITHUB_TOKEN` for package access.
-In the GitHub Packages settings for `@grasdouble/lufa_config_agents`, grant
-`grasdouble/Lufa-CICD` **Read** access under **Manage Actions access**: pnpm's
-lockfile supply-chain checks fetch its metadata even during `--prod` installs.
+The release job requests `contents: write` and `pull-requests: write`. Standard
+test and release installs use public tooling and do not require GitHub Packages
+permissions.
+
+The private `@grasdouble/lufa_config_agents` package is fetched only when a
+maintainer explicitly runs `pnpm sync:agents` (`pnpm dlx`). If a workflow ever
+invokes that command, grant `packages: read` and the calling repository access
+under the package's **Manage Actions access** settings.
 
 For automatic CI on version PRs, use the existing `LUFA_CI_SECRET_WRITE` Actions
 secret convention shared by the other Grasdouble repositories. Make this secret
@@ -154,11 +157,15 @@ a mocked API and do not mutate repository tags.
 
 ## Internal action dependencies
 
-`changesets-release` calls `setup-node-pnpm@setup-node-pnpm-v1`. Compatible setup
-fixes are picked up through that alias. Adopting `setup-node-pnpm-v2` requires a
-reviewed code change and a release of the consuming action, with a bump appropriate
-to its own public contract. Changesets does not automatically update `uses`
-dependencies between action directories; these are not npm workspace dependencies.
+`changesets-release` assumes its caller has already checked out the repository,
+set up Node.js/pnpm, installed dependencies, and configured registry access. The
+caller controls these environment and credential steps. `check-quality` likewise
+runs only the caller-provided quality commands; workflows own dependency installation.
+When `check-quality` enables its `check-agent-rules` input, it calls
+`sync-agents@sync-agents-v1`; publish that action before enabling the check.
+
+Changesets does not automatically update `uses` dependencies between action
+directories; these are not npm workspace dependencies.
 
 A full SHA pins an action's code, but not its dependencies that use mobile aliases.
 Fully immutable execution requires pinning those internal refs as well.
@@ -172,9 +179,9 @@ Ensure `setup-node-pnpm-v1` exists before invoking `changesets-release`.
 
 The catalogue's validation and publication use local actions and pinned third-party
 tools, so they can bootstrap before the first catalogue tags exist. CI installs
-only production tooling with the frozen pnpm lockfile; Changesets CLI is a root
-dependency, while the private agent configuration package remains a local
-development dependency.
+only production tooling with the frozen pnpm lockfile; Changesets CLI is the root
+tooling dependency. The private agent configuration package is fetched on demand
+only by the explicit `pnpm sync:agents` command.
 
 The consumer release workflow now calls `actions/changesets-release` inside a
 job's `steps`, with credentials under `with`. Consumers provide checkout, runner,

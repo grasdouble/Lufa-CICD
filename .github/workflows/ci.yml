@@ -32,7 +32,6 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
-      packages: read
     steps:
       - name: Checkout catalogue
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -58,7 +57,6 @@ jobs:
           assert.ok(!config.includes(process.env.NODE_AUTH_TOKEN));
           JS
       - name: Install public release tooling
-        # pnpm also checks private development dependency metadata with --prod.
         run: pnpm install --prod --frozen-lockfile --ignore-scripts
       - name: Validate Changesets configuration and pending versions
         # The version PR has already consumed the changesets it applies.
@@ -83,7 +81,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      packages: read
     concurrency:
       group: catalogue-releases
       cancel-in-progress: false
@@ -113,7 +110,6 @@ jobs:
 
       - name: Install public release tooling
         if: steps.revision.outputs.current == 'true'
-        # pnpm also checks private development dependency metadata with --prod.
         run: pnpm install --prod --frozen-lockfile --ignore-scripts
 
       # Publish before Changesets prepares its version branch and modifies the checkout.
