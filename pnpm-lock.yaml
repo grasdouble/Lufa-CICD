@@ -176,6 +176,8 @@ importers:
 
   actions/changesets-release: {}
 
+  actions/check-changesets: {}
+
   actions/ftp-deploy: {}
 
   actions/lint-workflows: {}
