@@ -61,12 +61,26 @@ test('reads the public Core source rather than the private npm package for consu
     },
   });
 
-  assert.equal(source.version, 'local@1.2.3');
+  assert.equal(source.version, '1.2.3');
   assert.equal(source.sharedContent, 'Shared rules');
   assert.deepEqual(urls.sort(), [
     'https://raw.githubusercontent.com/grasdouble/Lufa-Core/main/packages/config/agents/AGENTS.shared.md',
     'https://raw.githubusercontent.com/grasdouble/Lufa-Core/main/packages/config/agents/package.json',
   ]);
+});
+
+test('uses the local marker only when synchronizing the Core source repository', async () => {
+  const temp = mkdtempSync(join(tmpdir(), 'sync-agents-source-'));
+  const packageDirectory = join(temp, 'packages', 'config', 'agents');
+  try {
+    mkdirSync(packageDirectory, { recursive: true });
+    writeFileSync(join(packageDirectory, 'AGENTS.shared.md'), 'Core shared rules\n');
+    writeFileSync(join(packageDirectory, 'package.json'), JSON.stringify({ version: '1.2.3' }));
+    const source = await readSharedRules({ cwd: temp, repository: 'grasdouble/Lufa-Core' });
+    assert.deepEqual(source, { sharedContent: 'Core shared rules', version: 'local' });
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
 });
 
 test('check mode reports stale shared rules without modifying the checkout', async () => {

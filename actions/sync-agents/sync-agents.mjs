@@ -57,7 +57,7 @@ export async function readSharedRules({ cwd, repository, fetchImpl = fetch }) {
   }
   return {
     sharedContent: (await rulesResponse.text()).trimEnd(),
-    version: `local@${packageManifest.version}`,
+    version: packageManifest.version,
   };
 }
 

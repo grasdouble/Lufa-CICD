@@ -409,3 +409,10 @@ Keep `@grasdouble/lufa_config_agents` out of the root dependency graph; the expl
 - ✅ `"sync:agents": "pnpm dlx @grasdouble/lufa_config_agents"` for on-demand synchronization.
 - ✅ If a workflow invokes that command, grant `packages: read` and repository access under **Manage Actions access**.
 - ❌ Add the private package as a root dependency just to provide the sync command; every frozen CI install would then require package access.
+
+## Consumer agent markers — Use the published package version
+
+When `sync-agents` reads shared rules from Lufa-Core for a consumer repository, the generated marker must use the package version from Core's `package.json`; reserve the `local` marker for Core's own source checkout.
+
+- ✅ Consumers show `@grasdouble/lufa_config_agents@<version>` matching the shared source package manifest.
+- ❌ Mark a consumer's generated block `local@<version>`; that marker is only for local-source synchronization and will drift from normal `pnpm sync:agents` output.

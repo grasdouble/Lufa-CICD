@@ -39,8 +39,9 @@ configuration and is not written to the remote URL or repository config.
 - Linux runner with Node.js and Git available.
 - Check out the caller's target branch before running the action. In sync mode,
   the checkout branch must match `head-branch` and the working tree must be clean.
-- The sync source is read from public `Lufa-Core` `main`; for `Lufa-Core` itself,
-  the current checkout's local `packages/config/agents` package is used.
+- Consumer repositories read the shared rules and published package version from
+  public `Lufa-Core` `main`. `Lufa-Core` itself uses the local package and keeps
+  the `local` source marker.
 - In check mode, no write permissions or registry credentials are needed.
 
 ## Examples
