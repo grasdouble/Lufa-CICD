@@ -1,5 +1,11 @@
 # @grasdouble/cicd-sync-agents
 
+## 1.0.1
+
+### Patch Changes
+
+- e45e11d: fix: use the published package version in consumer AGENTS.md markers.
+
 ## 1.0.0
 
 ### Major Changes
