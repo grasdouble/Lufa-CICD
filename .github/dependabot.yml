@@ -6,6 +6,7 @@ updates:
       - /actions/lint-workflows
       - /actions/setup-node-pnpm
       - /actions/pr-comment
+      - /actions/check-changesets
       - /actions/ftp-deploy
       - /actions/changesets-release
     ignore:

@@ -11,6 +11,7 @@ triggers and calls the catalogue.
 | [`lint-workflows`](actions/lint-workflows/README.md) | `lint-workflows-v1` | Validate workflows with actionlint |
 | [`setup-node-pnpm`](actions/setup-node-pnpm/README.md) | `setup-node-pnpm-v1` | Set up Node.js, pnpm, caching and registry authentication |
 | [`pr-comment`](actions/pr-comment/README.md) | `pr-comment-v1` | Create or update an author-scoped, marked PR comment |
+| [`check-changesets`](actions/check-changesets/README.md) | `check-changesets-v1` | Check changed workspace packages for Changeset coverage |
 | [`ftp-deploy`](actions/ftp-deploy/README.md) | `ftp-deploy-v1` | Deploy a prepared directory over FTP or FTPS |
 | [`changesets-release`](actions/changesets-release/README.md) | `changesets-release-v1` | Build and release pnpm packages with Changesets |
 
@@ -88,6 +89,7 @@ actions/
   lint-workflows/            # Workflow validation
   setup-node-pnpm/           # Node.js/pnpm and registry setup
   pr-comment/                # Marked PR comments and behavior tests
+  check-changesets/          # Changeset coverage validation for workspace packages
   ftp-deploy/                # FTP/FTPS deployment
   changesets-release/        # pnpm package release steps
 docs/

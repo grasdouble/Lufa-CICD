@@ -1,0 +1,50 @@
+name: Check Changesets
+description: Check changed pnpm workspace packages for Changeset coverage.
+
+inputs:
+  base-sha:
+    description: Base commit SHA used to find files changed by the pull request.
+    required: true
+  head-sha:
+    description: Head commit SHA used to find files changed by the pull request.
+    required: true
+  ignore-markdown:
+    description: Ignore changed Markdown and AsciiDoc files when detecting modified packages.
+    required: false
+    default: 'false'
+
+outputs:
+  modified-packages:
+    description: JSON array of modified workspace package names.
+    value: ${{ steps.check.outputs.modified-packages }}
+  covered-packages:
+    description: JSON array of modified workspace package names covered by changed Changesets.
+    value: ${{ steps.check.outputs.covered-packages }}
+  missing-packages:
+    description: JSON array of modified workspace package names without Changeset coverage.
+    value: ${{ steps.check.outputs.missing-packages }}
+  modified-count:
+    description: Number of modified workspace packages.
+    value: ${{ steps.check.outputs.modified-count }}
+  missing-count:
+    description: Number of modified workspace packages without Changeset coverage.
+    value: ${{ steps.check.outputs.missing-count }}
+  passed:
+    description: Whether all modified workspace packages are covered by changed Changesets.
+    value: ${{ steps.check.outputs.passed }}
+  comment-body:
+    description: Markdown report suitable for posting as a pull request comment.
+    value: ${{ steps.check.outputs.comment-body }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check changed workspace packages
+      id: check
+      shell: bash
+      env:
+        BASE_SHA: ${{ inputs.base-sha }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        IGNORE_MARKDOWN: ${{ inputs.ignore-markdown }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+      run: node "$GITHUB_ACTION_PATH/check-changesets.mjs"
