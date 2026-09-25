@@ -37,7 +37,7 @@ runs:
   using: composite
   steps:
     - name: Deploy to FTP
-      uses: SamKirkland/FTP-Deploy-Action@fe9c9aad1198372d80a77c8dace63cbe48b69eac # v4.3.6
+      uses: SamKirkland/FTP-Deploy-Action@a51268f67f6605236975928ae28b0f7e9971d50a # v4.3.6
       with:
         server: ${{ inputs.server }}
         port: ${{ inputs.port }}
