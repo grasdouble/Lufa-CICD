@@ -89,6 +89,7 @@ available at the refs they declare.
   dependabot.yml             # Third-party action updates
   workflows/
     ci.yml                   # Validation and per-action releases
+    dependabot-changeset.yml # Add Changesets to Dependabot PRs
 actions/
   lint-workflows/            # Workflow validation
   setup-node-pnpm/           # Node.js/pnpm and registry setup

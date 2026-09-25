@@ -1,0 +1,44 @@
+name: Dependabot Changesets
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-changeset-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  add-changeset:
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the Dependabot branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ secrets.LUFA_CI_SECRET_DEPENDABOT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js and pnpm
+        uses: ./actions/setup-node-pnpm
+        with:
+          node-version-file: actions/setup-node-pnpm/__tests__/fixtures/.tool-versions
+          github-token: ${{ github.token }}
+
+      - name: Add a Changeset for updated workspace packages
+        uses: ./actions/dependabot-changeset
+        with:
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          head-branch: ${{ github.event.pull_request.head.ref }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          github-token: ${{ secrets.LUFA_CI_SECRET_DEPENDABOT }}

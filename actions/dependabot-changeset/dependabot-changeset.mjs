@@ -19,8 +19,12 @@ export function getAffectedPackages({ workspaces, changedFiles }) {
 
   for (const changedFile of changedFiles) {
     const file = normalizePath(changedFile);
-    if (!file.endsWith('/package.json')) continue;
-    const packagePath = file.slice(0, -'/package.json'.length);
+    const packagePath = file.endsWith('/package.json')
+      ? file.slice(0, -'/package.json'.length)
+      : file.endsWith('/action.yml')
+        ? file.slice(0, -'/action.yml'.length)
+        : null;
+    if (!packagePath) continue;
     const name = packageByPath.get(packagePath);
     if (name) affected.add(name);
   }

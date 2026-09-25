@@ -1,8 +1,9 @@
 # dependabot-changeset
 
-Find workspace packages whose `package.json` changed in a pull request, then
-generate, commit, and push a patch Changeset. Workspace packages are discovered
-with `pnpm -r list --depth -1 --json`; the repository-root package is excluded.
+Find workspace packages whose `package.json` or `action.yml` changed in a pull
+request, then generate, commit, and push a patch Changeset. Workspace packages
+are discovered with `pnpm -r list --depth -1 --json`; the repository-root
+package is excluded.
 
 The Changeset filename is `.changeset/dependabot-pr-<number>.md`, so reruns for
 the same PR update the same file and independent PRs do not collide. Existing
@@ -23,7 +24,7 @@ removed when their body is exactly `Dependency updates`.
 
 | Output | Description |
 | --- | --- |
-| `affected-packages` | JSON array of workspace packages whose manifests changed. |
+| `affected-packages` | JSON array of workspace packages whose `package.json` or `action.yml` changed. |
 | `changeset-file` | Stable Changeset file path, or an empty string if no package is affected. |
 | `changed` | `true` if the action committed and pushed; otherwise `false`. |
 | `commit-sha` | Current commit SHA after the action completes. |
@@ -34,6 +35,8 @@ removed when their body is exactly `Dependency updates`.
 - Check out the PR head branch with full history and a clean working tree.
 - The caller grants `contents: write` and passes a token with write access to
   that branch. The action cannot grant workflow permissions itself.
+- For Dependabot-triggered workflows, configure `LUFA_CI_SECRET_DEPENDABOT` as
+  a Dependabot secret with repository contents write access.
 - The token is used only for the push; the action adds it to Git's HTTP
   authorization through process environment configuration and does not write it
   to the remote URL or repository config.
@@ -68,6 +71,6 @@ jobs:
 ```
 
 No `pnpm install` is needed; pnpm is used only to enumerate workspace packages.
-When there are no changed workspace package manifests, the action makes no
-commit. Repeated runs with unchanged manifests and Changeset content are
-idempotent.
+When there are no changed workspace package manifests or action metadata files,
+the action makes no commit. Repeated runs with unchanged files and Changeset
+content are idempotent.

@@ -29,6 +29,19 @@ test('maps changed package manifests to workspace packages and ignores the root 
   }), ['@example/child', '@example/parent']);
 });
 
+test('maps changed composite action metadata to its workspace package', () => {
+  assert.deepEqual(getAffectedPackages({
+    workspaces: [
+      workspace('@grasdouble/cicd-ftp-deploy', 'actions/ftp-deploy'),
+      workspace('@grasdouble/cicd-pr-comment', 'actions/pr-comment'),
+    ],
+    changedFiles: [
+      'actions/ftp-deploy/action.yml',
+      'actions/pr-comment/README.md',
+    ],
+  }), ['@grasdouble/cicd-ftp-deploy']);
+});
+
 test('builds deterministic patch Changeset content with sorted package names', () => {
   assert.equal(buildChangeset(['@example/z', '@example/a']), [
     '---',
