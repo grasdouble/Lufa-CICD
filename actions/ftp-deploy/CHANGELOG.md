@@ -1,5 +1,11 @@
 # @grasdouble/cicd-ftp-deploy
 
+## 1.0.2
+
+### Patch Changes
+
+- ee899ab: Dependency updates
+
 ## 1.0.1
 
 ### Patch Changes
