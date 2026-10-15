@@ -1,5 +1,11 @@
 # @grasdouble/cicd-dependency-report
 
+## 1.0.2
+
+### Patch Changes
+
+- 320fce8: Dependency updates
+
 ## 1.0.1
 
 ### Patch Changes
