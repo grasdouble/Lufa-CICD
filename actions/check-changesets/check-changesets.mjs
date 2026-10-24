@@ -24,11 +24,30 @@ export function parseChangesetPackages(content) {
   return packages;
 }
 
+function globToRegExp(pattern) {
+  const normalized = normalizePath(pattern);
+  let source = '^';
+  for (let index = 0; index < normalized.length; index += 1) {
+    const char = normalized[index];
+    if (char === '*' && normalized[index + 1] === '*') {
+      source += '.*';
+      index += 1;
+    } else if (char === '*') source += '[^/]*';
+    else if (char === '?') source += '[^/]';
+    else source += char.replace(/[|\\{}()[\]^$+?.]/g, '\\$&');
+  }
+  return new RegExp(`${source}$`);
+}
+
+function matchesIgnorePattern(file, patterns) {
+  return patterns.some((pattern) => globToRegExp(pattern).test(file));
+}
+
 function normalizePath(path) {
   return path.replaceAll('\\', '/').replace(/^\.\//, '').replace(/\/$/, '');
 }
 
-export function checkChangesets({ workspaces, changedFiles, changesetFiles, ignoreMarkdown = false }) {
+export function checkChangesets({ workspaces, changedFiles, changesetFiles, ignoreMarkdown = false, ignorePatterns = [] }) {
   const packagesByPath = workspaces
     .filter(({ name, path }) => name && path && normalizePath(path) !== '.')
     .map(({ name, path }) => ({ name, path: normalizePath(path) }))
@@ -39,6 +58,7 @@ export function checkChangesets({ workspaces, changedFiles, changesetFiles, igno
   for (const changedFile of changedFiles) {
     const file = normalizePath(changedFile);
     if (ignoreMarkdown && /\.(?:md|adoc)$/i.test(file)) continue;
+    if (matchesIgnorePattern(file, ignorePatterns)) continue;
     const workspace = packagesByPath.find(({ path }) => file.startsWith(`${path}/`));
     if (workspace) modifiedPackages.add(workspace.name);
   }
@@ -86,7 +106,7 @@ function writeOutput(name, value) {
   appendFileSync(process.env.GITHUB_OUTPUT, `${name}<<${delimiter}\n${content}\n${delimiter}\n`);
 }
 
-export function runCheck({ cwd, baseSha, headSha, ignoreMarkdown }) {
+export function runCheck({ cwd, baseSha, headSha, ignoreMarkdown, ignorePatterns = [] }) {
   if (!/^[0-9a-f]{7,64}$/i.test(baseSha) || !/^[0-9a-f]{7,64}$/i.test(headSha)) {
     throw new Error('Both base-sha and head-sha must be valid Git commit SHAs.');
   }
@@ -103,7 +123,7 @@ export function runCheck({ cwd, baseSha, headSha, ignoreMarkdown }) {
     }
   });
 
-  return checkChangesets({ workspaces: readWorkspaces(cwd), changedFiles, changesetFiles, ignoreMarkdown });
+  return checkChangesets({ workspaces: readWorkspaces(cwd), changedFiles, changesetFiles, ignoreMarkdown, ignorePatterns });
 }
 
 export function buildComment({ modifiedPackages, missingPackages }) {
@@ -168,6 +188,7 @@ async function main() {
     baseSha: process.env.BASE_SHA ?? '',
     headSha: process.env.HEAD_SHA ?? '',
     ignoreMarkdown: process.env.IGNORE_MARKDOWN === 'true',
+    ignorePatterns: (process.env.IGNORE_PATTERNS ?? '').split(/\r?\n/).map((pattern) => pattern.trim()).filter(Boolean),
   });
   writeOutput('modified-packages', result.modifiedPackages);
   writeOutput('covered-packages', result.coveredPackages);

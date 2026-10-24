@@ -16,6 +16,7 @@ its own comment behavior and decide when to fail.
 | `base-sha` | Yes | — | Base Git commit SHA used to find changed files. |
 | `head-sha` | Yes | — | Head Git commit SHA used to find changed files. |
 | `ignore-markdown` | No | `false` | Ignore `.md` and `.adoc` changes when detecting modified packages. |
+| `ignore-patterns` | No | — | Newline-separated glob patterns for changed paths to ignore (for example, `packages/*/test/**`). Patterns use `/` separators; `*` matches within one path segment and `**` matches across segments. |
 
 ## Outputs
 
@@ -63,3 +64,5 @@ its own comment behavior and decide when to fail.
 
 The action identifies package coverage only from Changeset files changed in the
 given commit range. Deleted Changeset files do not provide coverage.
+Ignored paths do not mark a package as modified. A package still requires
+Changeset coverage when any other non-ignored file in that package changes.

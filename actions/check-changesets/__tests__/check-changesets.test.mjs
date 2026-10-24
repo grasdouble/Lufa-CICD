@@ -65,6 +65,19 @@ test('optionally ignores Markdown and AsciiDoc files, but still checks manifests
   }).missingPackages, ['@example/pkg']);
 });
 
+test('ignores configured changed-path globs without exempting mixed package changes', () => {
+  const args = {
+    workspaces: [workspace('@example/pkg', 'packages/pkg')],
+    changedFiles: ['packages/pkg/test/unit.test.ts', 'packages/pkg/src/index.ts'],
+    changesetFiles: [],
+    ignorePatterns: ['packages/*/test/**'],
+  };
+  assert.deepEqual(checkChangesets(args).missingPackages, ['@example/pkg']);
+  assert.deepEqual(checkChangesets({
+    ...args, changedFiles: ['packages/pkg/test/unit.test.ts'],
+  }).modifiedPackages, []);
+});
+
 test('ignores files outside workspace packages and deduplicates packages', () => {
   const result = checkChangesets({
     workspaces: [workspace('@example/pkg', 'packages/pkg')],
