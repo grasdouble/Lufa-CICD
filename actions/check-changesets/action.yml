@@ -12,6 +12,10 @@ inputs:
     description: Ignore changed Markdown and AsciiDoc files when detecting modified packages.
     required: false
     default: 'false'
+  ignore-patterns:
+    description: Newline-separated glob patterns for changed paths to exclude from package change detection.
+    required: false
+    default: ''
 
 outputs:
   modified-packages:
@@ -46,5 +50,6 @@ runs:
         BASE_SHA: ${{ inputs.base-sha }}
         HEAD_SHA: ${{ inputs.head-sha }}
         IGNORE_MARKDOWN: ${{ inputs.ignore-markdown }}
+        IGNORE_PATTERNS: ${{ inputs.ignore-patterns }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
       run: node "$GITHUB_ACTION_PATH/check-changesets.mjs"
