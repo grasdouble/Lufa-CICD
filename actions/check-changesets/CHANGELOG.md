@@ -1,5 +1,11 @@
 # @grasdouble/cicd-check-changesets
 
+## 1.1.0
+
+### Minor Changes
+
+- 9b69a18: feat: allow consumers to ignore selected changed paths during Changeset coverage checks
+
 ## 1.0.0
 
 ### Major Changes
