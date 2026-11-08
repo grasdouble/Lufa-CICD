@@ -365,6 +365,12 @@ when changing how actions or workflows are organized.
 
 - ✅ Add a changeset naming the affected action packages and their bump levels.
 - ❌ Introduce Release Please or infer version bumps from commit titles.
+- Treat the changeset as part of the implementation, not as post-task cleanup:
+  identify affected action packages and add or consolidate their changeset before
+  final verification. Do not report the change complete until
+  `rtk pnpm changeset status` succeeds.
+  - ✅ Implementation, package changeset, then final tests and changeset status.
+  - ❌ Finish code and tests first, leaving the required changeset for a later reminder.
 
 - ✅ `pr-comment-v1.2.3` is immutable; `pr-comment-v1` follows stable major 1 releases.
 - ❌ Use a global `@v1`, move exact version tags, or point stable aliases at prereleases.
