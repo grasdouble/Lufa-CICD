@@ -44,14 +44,19 @@ function matchesIgnorePattern(file, patterns) {
 }
 
 function normalizePath(path) {
-  return path.replaceAll('\\', '/').replace(/^\.\//, '').replace(/\/$/, '');
+  const normalized = path.replaceAll('\\', '/').replace(/^\.\//, '').replace(/\/$/, '');
+  return normalized === '.' ? '' : normalized;
 }
 
-export function checkChangesets({ workspaces, changedFiles, changesetFiles, ignoreMarkdown = false, ignorePatterns = [] }) {
+export function checkChangesets({ mode = 'workspace', workspaces, changedFiles, changesetFiles, ignoreMarkdown = false, ignorePatterns = [] }) {
+  if (!['workspace', 'simple'].includes(mode)) throw new Error(`Unsupported check mode: ${mode}`);
   const packagesByPath = workspaces
-    .filter(({ name, path }) => name && path && normalizePath(path) !== '.')
+    .filter(({ name, path }) => name && path !== undefined && path !== null)
     .map(({ name, path }) => ({ name, path: normalizePath(path) }))
     .sort((a, b) => b.path.length - a.path.length);
+  const applicablePackages = mode === 'simple'
+    ? packagesByPath.filter(({ path }) => path === '').slice(0, 1)
+    : packagesByPath;
   const packageNames = new Set(packagesByPath.map(({ name }) => name));
   const modifiedPackages = new Set();
 
@@ -59,21 +64,25 @@ export function checkChangesets({ workspaces, changedFiles, changesetFiles, igno
     const file = normalizePath(changedFile);
     if (ignoreMarkdown && /\.(?:md|adoc)$/i.test(file)) continue;
     if (matchesIgnorePattern(file, ignorePatterns)) continue;
-    const workspace = packagesByPath.find(({ path }) => file.startsWith(`${path}/`));
+    const workspace = applicablePackages.find(({ path }) => path && file.startsWith(`${path}/`))
+      ?? applicablePackages.find(({ path }) => path === '');
     if (workspace) modifiedPackages.add(workspace.name);
   }
 
   const coveredPackages = new Set();
+  let hasEmptyChangeset = false;
   for (const changeset of changesetFiles) {
     if (!changeset.content || changeset.path === '.changeset/README.md') continue;
-    for (const name of parseChangesetPackages(changeset.content)) {
+    const packages = parseChangesetPackages(changeset.content);
+    if (packages.size === 0) hasEmptyChangeset = true;
+    for (const name of packages) {
       if (packageNames.has(name)) coveredPackages.add(name);
     }
   }
 
   const modified = [...modifiedPackages].sort();
-  const covered = modified.filter((name) => coveredPackages.has(name));
-  const missing = modified.filter((name) => !coveredPackages.has(name));
+  const covered = modified.filter((name) => hasEmptyChangeset || coveredPackages.has(name));
+  const missing = modified.filter((name) => !covered.includes(name));
   return {
     modifiedPackages: modified,
     coveredPackages: covered,
@@ -106,7 +115,7 @@ function writeOutput(name, value) {
   appendFileSync(process.env.GITHUB_OUTPUT, `${name}<<${delimiter}\n${content}\n${delimiter}\n`);
 }
 
-export function runCheck({ cwd, baseSha, headSha, ignoreMarkdown, ignorePatterns = [] }) {
+export function runCheck({ cwd, baseSha, headSha, mode = 'workspace', ignoreMarkdown, ignorePatterns = [] }) {
   if (!/^[0-9a-f]{7,64}$/i.test(baseSha) || !/^[0-9a-f]{7,64}$/i.test(headSha)) {
     throw new Error('Both base-sha and head-sha must be valid Git commit SHAs.');
   }
@@ -123,7 +132,10 @@ export function runCheck({ cwd, baseSha, headSha, ignoreMarkdown, ignorePatterns
     }
   });
 
-  return checkChangesets({ workspaces: readWorkspaces(cwd), changedFiles, changesetFiles, ignoreMarkdown, ignorePatterns });
+  const workspaces = mode === 'simple'
+    ? [{ name: JSON.parse(readFileSync(resolve(cwd, 'package.json'), 'utf8')).name, path: '.' }]
+    : readWorkspaces(cwd);
+  return checkChangesets({ mode, workspaces, changedFiles, changesetFiles, ignoreMarkdown, ignorePatterns });
 }
 
 export function buildComment({ modifiedPackages, missingPackages }) {
@@ -187,6 +199,7 @@ async function main() {
     cwd: process.env.GITHUB_WORKSPACE ?? process.cwd(),
     baseSha: process.env.BASE_SHA ?? '',
     headSha: process.env.HEAD_SHA ?? '',
+    mode: process.env.MODE ?? 'workspace',
     ignoreMarkdown: process.env.IGNORE_MARKDOWN === 'true',
     ignorePatterns: (process.env.IGNORE_PATTERNS ?? '').split(/\r?\n/).map((pattern) => pattern.trim()).filter(Boolean),
   });

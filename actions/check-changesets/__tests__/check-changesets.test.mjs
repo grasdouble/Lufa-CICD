@@ -10,7 +10,6 @@ const workspace = (name, path) => ({ name, path });
 test('maps changes to the deepest matching workspace package, including private packages', () => {
   const result = checkChangesets({
     workspaces: [
-      workspace('@example/root', '.'),
       workspace('@example/parent', 'packages/design-system'),
       workspace('@example/child', 'packages/design-system/main'),
       workspace('@example/app', 'apps/web'),
@@ -25,6 +24,37 @@ test('maps changes to the deepest matching workspace package, including private 
   });
   assert.deepEqual(result.modifiedPackages, ['@example/app', '@example/child', '@example/parent']);
   assert.deepEqual(result.missingPackages, result.modifiedPackages);
+});
+test('tracks root workspace package files', () => {
+  const result = checkChangesets({
+    workspaces: [workspace('@example/root', '.'), workspace('@example/pkg', 'packages/pkg')],
+    changedFiles: ['package.json', 'README.md', 'packages/pkg/src/index.js'],
+    changesetFiles: [],
+  });
+  assert.deepEqual(result.modifiedPackages, ['@example/pkg', '@example/root']);
+  assert.deepEqual(result.missingPackages, ['@example/pkg', '@example/root']);
+});
+
+test('treats an empty Changeset as an explicit no-bump declaration', () => {
+  const result = checkChangesets({
+    workspaces: [workspace('@example/root', '.'), workspace('@example/pkg', 'packages/pkg')],
+    changedFiles: ['package.json', 'packages/pkg/src/index.js'],
+    changesetFiles: [{ path: '.changeset/no-bump.md', content: '---\n---\n\nNo release needed.\n' }],
+  });
+  assert.deepEqual(result.coveredPackages, ['@example/pkg', '@example/root']);
+  assert.deepEqual(result.missingPackages, []);
+  assert.equal(result.passed, true);
+});
+
+test('simple mode treats every changed project file as the root package', () => {
+  const result = checkChangesets({
+    mode: 'simple',
+    workspaces: [workspace('@example/app', '.')],
+    changedFiles: ['src/index.js', 'docs/guide.md'],
+    changesetFiles: [],
+  });
+  assert.deepEqual(result.modifiedPackages, ['@example/app']);
+  assert.deepEqual(result.missingPackages, ['@example/app']);
 });
 
 test('parses quoted Changesets package names and ignores frontmatter metadata', () => {

@@ -8,6 +8,10 @@ inputs:
   head-sha:
     description: Head commit SHA used to find files changed by the pull request.
     required: true
+  mode:
+    description: Check mode; use workspace for pnpm monorepos or simple for one root package.
+    required: false
+    default: workspace
   ignore-markdown:
     description: Ignore changed Markdown and AsciiDoc files when detecting modified packages.
     required: false
@@ -49,6 +53,7 @@ runs:
       env:
         BASE_SHA: ${{ inputs.base-sha }}
         HEAD_SHA: ${{ inputs.head-sha }}
+        MODE: ${{ inputs.mode }}
         IGNORE_MARKDOWN: ${{ inputs.ignore-markdown }}
         IGNORE_PATTERNS: ${{ inputs.ignore-patterns }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
