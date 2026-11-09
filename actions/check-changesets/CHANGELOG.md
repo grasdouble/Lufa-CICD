@@ -1,5 +1,11 @@
 # @grasdouble/cicd-check-changesets
 
+## 1.1.2
+
+### Patch Changes
+
+- 1019f8d: fix: ignore root-package changes in workspace mode.
+
 ## 1.1.1
 
 ### Patch Changes
