@@ -1,5 +1,11 @@
 # @grasdouble/cicd-check-changesets
 
+## 1.1.1
+
+### Patch Changes
+
+- 53cdfe8: fix: support simple projects and workspace monorepos in changeset checks.
+
 ## 1.1.0
 
 ### Minor Changes
