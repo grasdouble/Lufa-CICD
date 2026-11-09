@@ -25,14 +25,14 @@ test('maps changes to the deepest matching workspace package, including private 
   assert.deepEqual(result.modifiedPackages, ['@example/app', '@example/child', '@example/parent']);
   assert.deepEqual(result.missingPackages, result.modifiedPackages);
 });
-test('tracks root workspace package files', () => {
+test('ignores root package files and attributes only files inside workspace packages', () => {
   const result = checkChangesets({
     workspaces: [workspace('@example/root', '.'), workspace('@example/pkg', 'packages/pkg')],
-    changedFiles: ['package.json', 'README.md', 'packages/pkg/src/index.js'],
+    changedFiles: ['package.json', 'README.md', '.github/workflows/ci.yml', 'packages/pkg/src/index.js'],
     changesetFiles: [],
   });
-  assert.deepEqual(result.modifiedPackages, ['@example/pkg', '@example/root']);
-  assert.deepEqual(result.missingPackages, ['@example/pkg', '@example/root']);
+  assert.deepEqual(result.modifiedPackages, ['@example/pkg']);
+  assert.deepEqual(result.missingPackages, ['@example/pkg']);
 });
 
 test('treats an empty Changeset as an explicit no-bump declaration', () => {
@@ -41,7 +41,7 @@ test('treats an empty Changeset as an explicit no-bump declaration', () => {
     changedFiles: ['package.json', 'packages/pkg/src/index.js'],
     changesetFiles: [{ path: '.changeset/no-bump.md', content: '---\n---\n\nNo release needed.\n' }],
   });
-  assert.deepEqual(result.coveredPackages, ['@example/pkg', '@example/root']);
+  assert.deepEqual(result.coveredPackages, ['@example/pkg']);
   assert.deepEqual(result.missingPackages, []);
   assert.equal(result.passed, true);
 });
