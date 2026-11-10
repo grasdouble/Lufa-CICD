@@ -1,5 +1,11 @@
 # @grasdouble/cicd-check-changesets
 
+## 1.1.3
+
+### Patch Changes
+
+- 337a70d: fix: allow callers to skip Changeset coverage checks with successful empty outputs
+
 ## 1.1.2
 
 ### Patch Changes
