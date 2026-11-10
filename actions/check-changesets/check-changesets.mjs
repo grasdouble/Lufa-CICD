@@ -59,7 +59,7 @@ export function checkChangesets({ mode = 'workspace', workspaces, changedFiles, 
     .sort((a, b) => b.path.length - a.path.length);
   const applicablePackages = mode === 'simple'
     ? packagesByPath.filter(({ path }) => path === '').slice(0, 1)
-    : packagesByPath;
+    : packagesByPath.filter(({ path }) => path !== '');
   const packageNames = new Set(packagesByPath.map(({ name }) => name));
   const modifiedPackages = new Set();
 

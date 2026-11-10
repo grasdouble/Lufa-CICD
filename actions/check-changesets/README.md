@@ -2,9 +2,10 @@
 
 Check whether changes to packages are covered by a Changeset file in the
 specified commit range. Select `workspace` for pnpm monorepos, where changed
-files are attributed to their deepest matching workspace package, or `simple`
-for a single root package, where any non-ignored project file change modifies
-that package. Workspace packages are discovered with
+files are attributed to their deepest matching non-root workspace package; the
+root workspace package and files outside child workspaces are ignored. Select
+`simple` for a single root package, where any non-ignored project file change
+modifies that package. Workspace packages are discovered with
 `pnpm -r list --depth -1 --json`.
 
 The action does not post comments or fail the workflow when coverage is missing.
