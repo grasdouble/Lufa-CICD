@@ -48,7 +48,10 @@ function normalizePath(path) {
   return normalized === '.' ? '' : normalized;
 }
 
-export function checkChangesets({ mode = 'workspace', workspaces, changedFiles, changesetFiles, ignoreMarkdown = false, ignorePatterns = [] }) {
+export function checkChangesets({ mode = 'workspace', workspaces, changedFiles, changesetFiles, ignoreMarkdown = false, ignorePatterns = [], skip = false }) {
+  if (skip) {
+    return { modifiedPackages: [], coveredPackages: [], missingPackages: [], passed: true };
+  }
   if (!['workspace', 'simple'].includes(mode)) throw new Error(`Unsupported check mode: ${mode}`);
   const packagesByPath = workspaces
     .filter(({ name, path }) => name && path !== undefined && path !== null)
@@ -115,7 +118,8 @@ function writeOutput(name, value) {
   appendFileSync(process.env.GITHUB_OUTPUT, `${name}<<${delimiter}\n${content}\n${delimiter}\n`);
 }
 
-export function runCheck({ cwd, baseSha, headSha, mode = 'workspace', ignoreMarkdown, ignorePatterns = [] }) {
+export function runCheck({ cwd, baseSha, headSha, mode = 'workspace', ignoreMarkdown, ignorePatterns = [], skip = false }) {
+  if (skip) return { modifiedPackages: [], coveredPackages: [], missingPackages: [], passed: true };
   if (!/^[0-9a-f]{7,64}$/i.test(baseSha) || !/^[0-9a-f]{7,64}$/i.test(headSha)) {
     throw new Error('Both base-sha and head-sha must be valid Git commit SHAs.');
   }
@@ -195,13 +199,17 @@ export function buildComment({ modifiedPackages, missingPackages }) {
 }
 
 async function main() {
+  const skip = process.env.SKIP === 'true';
   const result = runCheck({
-    cwd: process.env.GITHUB_WORKSPACE ?? process.cwd(),
-    baseSha: process.env.BASE_SHA ?? '',
-    headSha: process.env.HEAD_SHA ?? '',
-    mode: process.env.MODE ?? 'workspace',
-    ignoreMarkdown: process.env.IGNORE_MARKDOWN === 'true',
-    ignorePatterns: (process.env.IGNORE_PATTERNS ?? '').split(/\r?\n/).map((pattern) => pattern.trim()).filter(Boolean),
+    skip,
+    ...(skip ? {} : {
+      cwd: process.env.GITHUB_WORKSPACE ?? process.cwd(),
+      baseSha: process.env.BASE_SHA ?? '',
+      headSha: process.env.HEAD_SHA ?? '',
+      mode: process.env.MODE ?? 'workspace',
+      ignoreMarkdown: process.env.IGNORE_MARKDOWN === 'true',
+      ignorePatterns: (process.env.IGNORE_PATTERNS ?? '').split(/\r?\n/).map((pattern) => pattern.trim()).filter(Boolean),
+    }),
   });
   writeOutput('modified-packages', result.modifiedPackages);
   writeOutput('covered-packages', result.coveredPackages);

@@ -20,6 +20,7 @@ its own comment behavior and decide when to fail.
 | `head-sha` | Yes | — | Head Git commit SHA used to find changed files. |
 | `ignore-markdown` | No | `false` | Ignore `.md` and `.adoc` changes when detecting modified packages. |
 | `ignore-patterns` | No | — | Newline-separated glob patterns for changed paths to ignore (for example, `packages/*/test/**`). Patterns use `/` separators; `*` matches within one path segment and `**` matches across segments. |
+| `skip` | No | `false` | Skip coverage calculation and return empty package arrays, zero counts, and `passed: true`. Set this explicitly from the caller's condition; the action does not detect branches or Changesets pull requests. |
 
 ## Outputs
 
@@ -55,7 +56,7 @@ its own comment behavior and decide when to fail.
     base-sha: ${{ github.event.pull_request.base.sha }}
     head-sha: ${{ github.event.pull_request.head.sha }}
     ignore-markdown: 'true'
-
+    skip: ${{ github.head_ref == 'changeset-release/main' }}
 - uses: grasdouble/Lufa-CICD/actions/pr-comment@pr-comment-v1
   with:
     github-token: ${{ github.token }}
@@ -65,6 +66,12 @@ its own comment behavior and decide when to fail.
 - if: steps.changesets.outputs.missing-count > 0
   run: exit 1
 ```
+
+The optional `skip` input defaults to `false`, preserving existing calls. When
+set to `true`, the action does not inspect Git history or workspace packages and
+returns empty package arrays, `modified-count: 0`, `missing-count: 0`, and
+`passed: true`. The caller supplies the condition; the action does not infer
+branch or pull-request types.
 
 The action identifies package coverage only from Changeset files changed in the
 given commit range. Deleted Changeset files do not provide coverage.

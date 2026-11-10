@@ -3,7 +3,36 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { buildComment, checkChangesets, parseChangesetPackages, readWorkspaces } from '../check-changesets.mjs';
+import { buildComment, checkChangesets, parseChangesetPackages, readWorkspaces, runCheck } from '../check-changesets.mjs';
+
+test('skips coverage when requested and defaults to checking coverage', () => {
+  const inputs = {
+    workspaces: [workspace('@example/app', 'packages/app')],
+    changedFiles: ['packages/app/src/index.js'],
+    changesetFiles: [],
+  };
+  const checked = checkChangesets(inputs);
+  assert.deepEqual(checked, {
+    modifiedPackages: ['@example/app'],
+    coveredPackages: [],
+    missingPackages: ['@example/app'],
+    passed: false,
+  });
+
+  const skipped = checkChangesets({ ...inputs, skip: true });
+  assert.deepEqual(skipped, {
+    modifiedPackages: [],
+    coveredPackages: [],
+    missingPackages: [],
+    passed: true,
+  });
+  assert.deepEqual(runCheck({ cwd: '/path/that/does/not/exist', skip: true }), {
+    modifiedPackages: [],
+    coveredPackages: [],
+    missingPackages: [],
+    passed: true,
+  });
+});
 
 const workspace = (name, path) => ({ name, path });
 

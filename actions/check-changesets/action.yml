@@ -20,6 +20,10 @@ inputs:
     description: Newline-separated glob patterns for changed paths to exclude from package change detection.
     required: false
     default: ''
+  skip:
+    description: Skip Changeset coverage checking and return a successful empty result.
+    required: false
+    default: 'false'
 
 outputs:
   modified-packages:
@@ -56,5 +60,6 @@ runs:
         MODE: ${{ inputs.mode }}
         IGNORE_MARKDOWN: ${{ inputs.ignore-markdown }}
         IGNORE_PATTERNS: ${{ inputs.ignore-patterns }}
+        SKIP: ${{ inputs.skip }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
       run: node "$GITHUB_ACTION_PATH/check-changesets.mjs"
